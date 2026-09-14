@@ -7,6 +7,15 @@ export default defineNuxtConfig({
 
   css: ['~/assets/css/main.css'],
 
+  // Nitro 当前版本未将 Node 24 列入自动检测范围，需为 Vercel Function 显式指定运行时
+  nitro: {
+    vercel: {
+      functions: {
+        runtime: 'nodejs24.x',
+      },
+    },
+  },
+
   // 特征 7：runtimeConfig。
   // 这里的默认值只在开发时用；运行时由环境变量 NUXT_DB_PATH / NUXT_RESET_DB 覆盖（Docker 负责注入）
   runtimeConfig: {

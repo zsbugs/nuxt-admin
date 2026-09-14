@@ -6,6 +6,8 @@ Nuxt 4 + Element Plus + `node:sqlite` 的**内部管理台形状**教学演示�
 
 ## 快速开始
 
+需要 Node.js 24（`node:sqlite`）。
+
 ```bash
 npm install
 npm run dev          # http://localhost:3000
