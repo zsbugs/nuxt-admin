@@ -20,8 +20,8 @@ export default defineNuxtConfig({
   // 这里的默认值只在开发时用；运行时由环境变量 NUXT_DB_PATH / NUXT_RESET_DB 覆盖（Docker 负责注入）
   runtimeConfig: {
     // SQLite 数据库文件路径（相对路径以启动时的工作目录为基准）
-    // Vercel 的部署目录只读；本演示每次启动都会重置数据，因此直接在内存中初始化 SQLite
-    dbPath: process.env.VERCEL ? ':memory:' : './data/demo.db',
+    // Vercel 运行时会在 server/utils/db.ts 中自动改用内存数据库
+    dbPath: './data/demo.db',
     // 选项 R：每次服务器启动都重建表并写入固定种子，保证验收可重复
     // 设为 false 可保留上次的数据（此时需要外部提供持久化的 dbPath）
     resetDb: true,

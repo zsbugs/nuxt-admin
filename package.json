@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": "24.x"
+    "node": ">=24.11.0 <25"
   },
   "description": "Nuxt 4 + Element Plus + node:sqlite 的内部管理台教学演示",
   "scripts": {

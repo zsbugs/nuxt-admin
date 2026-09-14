@@ -40,7 +40,9 @@ export function useDb(): DatabaseSync {
   if (db) return db
 
   const config = useRuntimeConfig()
-  const file = config.dbPath === ':memory:' ? config.dbPath : resolve(process.cwd(), config.dbPath)
+  const isVercelRuntime = Boolean(process.env.VERCEL) || process.cwd() === '/var/task'
+  const useMemoryDb = config.dbPath === ':memory:' || (isVercelRuntime && !process.env.NUXT_DB_PATH)
+  const file = useMemoryDb ? ':memory:' : resolve(process.cwd(), config.dbPath)
 
   // 目录可能还不存在（首次启动、干净的容器），先建出来
   if (file !== ':memory:') mkdirSync(dirname(file), { recursive: true })
