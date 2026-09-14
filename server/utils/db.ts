@@ -40,14 +40,14 @@ export function useDb(): DatabaseSync {
   if (db) return db
 
   const config = useRuntimeConfig()
-  const file = resolve(process.cwd(), config.dbPath)
+  const file = config.dbPath === ':memory:' ? config.dbPath : resolve(process.cwd(), config.dbPath)
 
   // 目录可能还不存在（首次启动、干净的容器），先建出来
-  mkdirSync(dirname(file), { recursive: true })
+  if (file !== ':memory:') mkdirSync(dirname(file), { recursive: true })
 
   db = new DatabaseSync(file)
   // WAL 让读写不互相阻塞；演示场景用不用都可以，这里保留是为了贴近真实用法
-  db.exec('PRAGMA journal_mode = WAL')
+  if (file !== ':memory:') db.exec('PRAGMA journal_mode = WAL')
   // 外键约束默认是关的，必须显式打开 —— 否则「删除有订单的客户」不会报错，特征 8 就没了载体
   db.exec('PRAGMA foreign_keys = ON')
 

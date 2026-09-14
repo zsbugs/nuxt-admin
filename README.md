@@ -97,10 +97,12 @@ orders(id, customer_id → customers.id, title, amount, status, created_at)
 
 | 变量 | 默认 | 说明 |
 |---|---|---|
-| `NUXT_DB_PATH` | `./data/demo.db` | SQLite 文件路径 |
+| `NUXT_DB_PATH` | 本地 `./data/demo.db`；Vercel `:memory:` | SQLite 文件路径 |
 | `NUXT_RESET_DB` | `true` | `true` = 每次启动重建表并写种子（选项 R） |
 | `NUXT_SESSION_SECRET` | 无 | **没有这个变量**，见下方说明 |
 | `NODE_OPTIONS` | — | 加 `--disable-warning=ExperimentalWarning` 可消掉 `node:sqlite` 的警告 |
+
+> Vercel 的 `/var/task` 目录只读，因此部署时自动改用内存数据库。当前演示本身每次启动都会重置数据，可用这种方式运行；如需持久化，需改用外部数据库。
 
 ## 与原计划的三处偏离（都有理由）
 
