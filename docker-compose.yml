@@ -1,0 +1,17 @@
+services:
+  app:
+    build: .
+    ports:
+      - '8081:3000'
+    environment:
+      NUXT_DB_PATH: /app/data/demo.db
+      # 选项 R：每次启动重建表并写入固定种子，验收因此可重复
+      NUXT_RESET_DB: 'true'
+      NODE_OPTIONS: --disable-warning=ExperimentalWarning
+
+    # 这里故意没有 volumes：
+    #   选 R 意味着数据本来就是「每次启动重建」的，挂卷保留它毫无意义。
+    #   如果哪天想让数据活过重启，需要同时做两件事：
+    #     1) 加 volumes: ['./data:/app/data']
+    #     2) 把 NUXT_RESET_DB 改成 'false'
+    #   只做其中一件都会得到一个自相矛盾的结果。
