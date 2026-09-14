@@ -1,4 +1,3 @@
-import type { DatabaseSync } from 'node:sqlite'
 import type { OrderStatus } from '~~/shared/types'
 
 /**
@@ -13,7 +12,7 @@ import type { OrderStatus } from '~~/shared/types'
  *     没有对照组，A4 只证明了「会报错」，没证明「不是永远报错」
  */
 
-interface SeedCustomer {
+export interface SeedCustomer {
   id: number
   name: string
   company: string
@@ -22,7 +21,7 @@ interface SeedCustomer {
   createdAt: string
 }
 
-interface SeedOrder {
+export interface SeedOrder {
   id: number
   customerId: number
   title: string
@@ -31,7 +30,7 @@ interface SeedOrder {
   createdAt: string
 }
 
-const CUSTOMERS: SeedCustomer[] = [
+export const SEED_CUSTOMERS: SeedCustomer[] = [
   { id: 1, name: '张三', company: '北京云杉科技有限公司', phone: '13800000001', email: 'zhangsan@example.com', createdAt: '2026-08-01 09:12:00' },
   { id: 2, name: '李四', company: '上海衡石贸易有限公司', phone: '13800000002', email: 'lisi@example.com', createdAt: '2026-08-02 10:03:00' },
   { id: 3, name: '王五', company: '深圳蓝湾电子有限公司', phone: '13800000003', email: 'wangwu@example.com', createdAt: '2026-08-03 11:20:00' },
@@ -43,7 +42,7 @@ const CUSTOMERS: SeedCustomer[] = [
 ]
 
 // 20 条订单，分布：张三 3、李四 3、王五 3、赵六 2、钱七 3、孙八 2、周九 4、吴十 0
-const ORDERS: SeedOrder[] = [
+export const SEED_ORDERS: SeedOrder[] = [
   { id: 1, customerId: 1, title: '云服务器年费', amount: 8600.0, status: 'paid', createdAt: '2026-08-03 09:00:00' },
   { id: 2, customerId: 1, title: '技术咨询（2 天）', amount: 5000.5, status: 'pending', createdAt: '2026-08-15 10:00:00' },
   { id: 3, customerId: 1, title: '上门部署', amount: 1200.0, status: 'cancelled', createdAt: '2026-08-20 11:00:00' },
@@ -71,27 +70,3 @@ const ORDERS: SeedOrder[] = [
   { id: 19, customerId: 7, title: '季度巡检', amount: 2600.0, status: 'paid', createdAt: '2026-08-23 15:00:00' },
   { id: 20, customerId: 7, title: '紧急支援', amount: 3800.0, status: 'cancelled', createdAt: '2026-08-27 08:30:00' },
 ]
-
-/** 在一个事务里写入种子数据；任何一条失败就整体回滚，不留半份数据 */
-export function seedFixedData(db: DatabaseSync): void {
-  const insertCustomer = db.prepare(
-    'INSERT INTO customers (id, name, company, phone, email, created_at) VALUES (?, ?, ?, ?, ?, ?)',
-  )
-  const insertOrder = db.prepare(
-    'INSERT INTO orders (id, customer_id, title, amount, status, created_at) VALUES (?, ?, ?, ?, ?, ?)',
-  )
-
-  db.exec('BEGIN')
-  try {
-    for (const c of CUSTOMERS) {
-      insertCustomer.run(c.id, c.name, c.company, c.phone, c.email, c.createdAt)
-    }
-    for (const o of ORDERS) {
-      insertOrder.run(o.id, o.customerId, o.title, o.amount, o.status, o.createdAt)
-    }
-    db.exec('COMMIT')
-  } catch (error) {
-    db.exec('ROLLBACK')
-    throw error
-  }
-}

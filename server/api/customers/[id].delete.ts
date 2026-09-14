@@ -8,21 +8,16 @@
  * 所以：先查订单 → 给出「还有 3 条订单」这种能读懂的话；
  * 外键约束仍然保留为最后一道防线（并发下先查后删之间可能被插入订单）。
  */
-export default defineEventHandler((event) => {
+export default defineEventHandler(async (event) => {
   const id = requireIdParam(event)
-  const db = useDb()
 
-  const customer = db.prepare('SELECT id, name FROM customers WHERE id = ?').get(id) as
-    | { id: number; name: string }
-    | undefined
+  const customer = await getCustomer(id)
 
   if (!customer) {
     throw apiError(404, 'CUSTOMER_NOT_FOUND', `客户 #${id} 不存在`)
   }
 
-  const { count } = db
-    .prepare('SELECT COUNT(*) AS count FROM orders WHERE customer_id = ?')
-    .get(id) as unknown as { count: number }
+  const count = await countOrdersByCustomer(id)
 
   if (count > 0) {
     throw apiError(409, 'CUSTOMER_HAS_ORDERS', `客户「${customer.name}」还有 ${count} 条订单，不能删除`, {
@@ -31,7 +26,7 @@ export default defineEventHandler((event) => {
   }
 
   try {
-    db.prepare('DELETE FROM customers WHERE id = ?').run(id)
+    await deleteCustomer(id)
   } catch (error) {
     // 787 = SQLITE_CONSTRAINT_FOREIGNKEY（见 server/utils/db.ts 的说明）
     if (isForeignKeyViolation(error)) {

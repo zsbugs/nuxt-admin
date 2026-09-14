@@ -5,7 +5,7 @@
  * 把「重建表 + 写种子」放在启动阶段，而不是第一次请求时懒执行，
  * 这样任何一个请求看到的都是已经准备好的数据库，也不会有并发首次初始化的麻烦。
  */
-export default defineNitroPlugin(() => {
-  initDb()
+export default defineNitroPlugin(async () => {
+  await initDb()
   console.log('[db] 已完成建表与固定种子写入（选项 R：每次启动重置）')
 })

@@ -2,6 +2,7 @@ node_modules
 .nuxt
 .output
 .vercel
+.edgeone
 .data
 data
 .env

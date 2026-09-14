@@ -6,7 +6,7 @@ Nuxt 4 + Element Plus + `node:sqlite` 的**内部管理台形状**教学演示�
 
 ## 快速开始
 
-需要 Node.js 24（`node:sqlite`）。
+本地和 Docker 推荐 Node.js 24；腾讯云 EdgeOne 的 Node.js 20 运行时会自动改用内存存储。
 
 ```bash
 npm install
@@ -100,11 +100,16 @@ orders(id, customer_id → customers.id, title, amount, status, created_at)
 | 变量 | 默认 | 说明 |
 |---|---|---|
 | `NUXT_DB_PATH` | 本地 `./data/demo.db`；Vercel `:memory:` | SQLite 文件路径 |
+| `NUXT_DB_DRIVER` | 自动 | 设为 `memory` 可强制使用内存存储 |
 | `NUXT_RESET_DB` | `true` | `true` = 每次启动重建表并写种子（选项 R） |
 | `NUXT_SESSION_SECRET` | 无 | **没有这个变量**，见下方说明 |
 | `NODE_OPTIONS` | — | 加 `--disable-warning=ExperimentalWarning` 可消掉 `node:sqlite` 的警告 |
 
 > Vercel 的 `/var/task` 目录只读，因此部署时自动改用内存数据库。当前演示本身每次启动都会重置数据，可用这种方式运行；如需持久化，需改用外部数据库。
+
+## 腾讯云 EdgeOne
+
+项目已接入 `@edgeone/nuxt-pages`。EdgeOne 的 Node.js 20 运行时无法加载 `node:sqlite`，因此会自动使用内存存储；详细构建产物由平台适配器生成在 `.edgeone/`。
 
 ## 与原计划的三处偏离（都有理由）
 
@@ -123,3 +128,4 @@ orders(id, customer_id → customers.id, title, amount, status, created_at)
 3. **演示账号写死在 `server/utils/session.ts`**：固定盐、单账号、无锁定、无改密。这是「够用的演示写法」，不是生产写法。
 4. **单写者 + 同步驱动**：`node:sqlite` 是同步 API，会阻塞事件循环。1 个人用没问题，几十个人并发就要推倒重来。
 5. **A3/A4 的界面部分只能手工点**：自动化测试被砍掉了，所以「列表立刻更新」这件事没有回归保护，改动 `refresh()` 之后没人会告诉你坏了。
+6. **EdgeOne 内存存储不跨实例共享**：Node.js 20 运行时没有 `node:sqlite`，写入只保留在当前函数实例内；生产持久化仍需外部数据库。
